@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Button, Grid, TextField } from '@mui/material';
 import { ProductMutation } from '../../../types';
+import FileInput from '../../../components/UI/FileInput/FileInput';
 
 interface Props {
   onSubmit: (mutation: ProductMutation) => void;
@@ -10,7 +11,8 @@ const ProductForm: React.FC<Props> = ({onSubmit}) => {
   const [state, setState] = useState<ProductMutation>({
     title: '',
     price: '',
-    description: ''
+    description: '',
+    image: null,
   });
 
   const submitFormHandler = (e: React.FormEvent) => {
@@ -24,6 +26,15 @@ const ProductForm: React.FC<Props> = ({onSubmit}) => {
     setState(prevState => {
       return {...prevState, [name]: value};
     });
+  };
+
+  const fileInputChangeHandler = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const {name, files} = e.target;
+    if (files) {
+      setState(prevState => ({
+        ...prevState, [name]: files[0]
+      }));
+    }
   };
 
   return (
@@ -57,6 +68,14 @@ const ProductForm: React.FC<Props> = ({onSubmit}) => {
             value={state.description}
             onChange={inputChangeHandler}
             name="description"
+          />
+        </Grid>
+
+        <Grid item xs>
+          <FileInput
+            label="Image"
+            name="image"
+            onChange={fileInputChangeHandler}
           />
         </Grid>
 

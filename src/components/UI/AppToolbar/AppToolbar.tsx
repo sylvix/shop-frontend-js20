@@ -17,11 +17,11 @@ const AppToolbar = () => {
           <Typography variant="h6" component="div" sx={{flexGrow: 1}}>
             <Link to="/">CompStore</Link>
           </Typography>
-          <Button component={NavLink} to="/register" color="inherit">Sing Up</Button>
+          <Button component={NavLink} to="/register" color="inherit">Sign Up</Button>
         </Grid>
       </Toolbar>
     </AppBar>
-  )
+  );
 };
 
 export default AppToolbar;

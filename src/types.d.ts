@@ -12,7 +12,7 @@ export interface ProductMutation {
   title: string;
   description: string;
   price: string;
-  image: File | null;
+  image: File | string | null;
 }
 
 export interface Category {
@@ -57,4 +57,9 @@ export interface RegisterResponse {
 
 export interface GlobalError {
   error: string;
+}
+
+export interface UpdateProductArg {
+  productId: string;
+  productMutation: ProductMutation;
 }

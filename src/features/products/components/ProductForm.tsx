@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { Button, Grid, MenuItem, TextField } from '@mui/material';
 import { ProductMutation } from '../../../types';
 import FileInput from '../../../components/UI/FileInput/FileInput';
@@ -8,18 +8,23 @@ import { fetchCategories } from '../../categories/categoriesThunks';
 
 interface Props {
   onSubmit: (mutation: ProductMutation) => void;
+  isEdit?: boolean;
+  initialProduct?: ProductMutation;
+  existingImage?: string | null;
 }
 
-const ProductForm: React.FC<Props> = ({onSubmit}) => {
+const initialState = {
+  category: '',
+  title: '',
+  price: '',
+  description: '',
+  image: null,
+};
+
+const ProductForm: React.FC<Props> = ({onSubmit, isEdit = false, initialProduct = initialState, existingImage}) => {
   const dispatch = useAppDispatch();
   const categories = useAppSelector(selectCategories);
-  const [state, setState] = useState<ProductMutation>({
-    category: '',
-    title: '',
-    price: '',
-    description: '',
-    image: null,
-  });
+  const [state, setState] = useState<ProductMutation>(initialProduct);
 
   useEffect(() => {
     dispatch(fetchCategories());
@@ -47,6 +52,23 @@ const ProductForm: React.FC<Props> = ({onSubmit}) => {
     }
   };
 
+  const selectedFilename = useMemo(() => {
+    if (state.image instanceof File) {
+      return state.image.name;
+    } else if (state.image === 'delete') {
+      return undefined;
+    } else if (existingImage) {
+      return existingImage;
+    }
+  }, [state.image, existingImage]);
+
+  const onImageClear = () => {
+    setState(prev => ({
+      ...prev,
+      image: 'delete',
+    }));
+  };
+
   return (
     <form
       autoComplete="off"
@@ -57,17 +79,19 @@ const ProductForm: React.FC<Props> = ({onSubmit}) => {
           <TextField
             select
             id="category" label="Category"
-            value={state.category}
+            value={categories.length > 0 ? state.category : ''}
             onChange={inputChangeHandler}
             name="category"
             required
           >
             <MenuItem value="" disabled>Please select a category</MenuItem>
-            {categories.map(category => (
-              <MenuItem key={category._id} value={category._id}>
-                {category.title}
-              </MenuItem>
-            ))}
+            {categories.length > 0 && (
+              categories.map(category => (
+                <MenuItem key={category._id} value={category._id}>
+                  {category.title}
+                </MenuItem>
+              ))
+            )}
           </TextField>
         </Grid>
 
@@ -106,11 +130,15 @@ const ProductForm: React.FC<Props> = ({onSubmit}) => {
             label="Image"
             name="image"
             onChange={fileInputChangeHandler}
+            filename={selectedFilename}
+            onClear={onImageClear}
           />
         </Grid>
 
         <Grid item xs>
-          <Button type="submit" color="primary" variant="contained">Create</Button>
+          <Button type="submit" color="primary" variant="contained">
+            {isEdit ? 'Edit' : 'Create'}
+          </Button>
         </Grid>
       </Grid>
     </form>
